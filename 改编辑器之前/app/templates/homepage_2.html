@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}上传文件 {% endblock %}
+
+
+
+{% block page_content %}
+    <p>娱乐一下，给管理员发个图片、小视频、文件吧</p>
+    <p></p>
+
+
+    <form action="" method=post enctype=multipart/form-data>
+        <p><input type=file name=file></p>
+        <p><input class="btn btn-success" type=submit value=Upload></p>
+    </form>
+
+{#    设置下载的文件#}
+    <h3>我们给你准备了一个
+        <a href="{{ url_for('main.uploaded_file',filename="python2.msi") }}" class="btn btn-warning">书单</a>
+    请过目.
+    </h3>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+<ul id="ldy" class="comments">
+{#    取消静态写法，使用ajax异步加载#}
+{#    {% for comment in comments %}#}
+{#    <li class="comment">#}
+{#        <div class="comment-thumbnail">#}
+{#            <a href="{{ url_for('.user', username=comment.author.username) }}">#}
+{#                <img class="img-rounded profile-thumbnail" src="{{ comment.author.gravatar(size=40) }}">#}
+{#            </a>#}
+{#        </div>#}
+{#        <div class="comment-content">#}
+{#            <div class="comment-date">{{ moment(comment.timestamp).fromNow() }}</div>#}
+{#            <div class="comment-author"><a href="{{ url_for('.user', username=comment.author.username) }}">{{ comment.author.username }}</a></div>#}
+{#            <div class="comment-body">#}
+{#                {% if comment.body_html %}#}
+{#                    {{ comment.body_html | safe }}#}
+{#                {% else %}#}
+{#                    {{ comment.body }}#}
+{#                {% endif %}#}
+{#            </div>#}
+{##}
+{#            <div class="comment-footer">#}
+{#            评论的人可以删除自己的评论，文章的作者可以删除评论#}
+{#                {% if current_user == comment.author or current_user == post.author or current_user.can(Permission.ADMINISTER) %}#}
+{#                    <a href="{{ url_for('.comment_delete',id=comment.id, pid=post.id) }}">#}
+{#                                                           参数：评论id，当前文章id                   #}
+{#                        <span class="label label-danger">删除</span>#}
+{#                    </a>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        </div>#}
+{#    </li>#}
+{#    {% endfor %}#}
+    <li class="comment">
+        -- end --
+    </li>
+</ul>

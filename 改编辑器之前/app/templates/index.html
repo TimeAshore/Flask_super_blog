@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}主页{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        body,html{
+           heigth:100%
+        }
+        body{
+            background: url("../static/3.jpg") center center no-repeat;
+            background-size: cover;
+            background-attachment:fixed;
+        }
+    </style>
+{% endblock %}
+{% block page_content %}
+    <div class="page-header">
+        <h3>{% if current_user.username %}{{ current_user.username }},你好！{% else %}游客你好！{% endif %}</h3>
+        <!--   渲染flash消息在基模板   -->
+    </div>
+{#    <div>#}
+{#        {% if current_user.can(Permission.WRITE_ARTICLES) %}#}
+{#            {{ wtf.quick_form(form) }}#}
+{#        {% endif %}#}
+{#    </div>#}
+
+{#    搜索文章#}
+<form action="/search_article" method="post">
+    <input type="text" name="search" style="margin-left: 916px;"/>
+    <input type="submit" value="查找">
+</form>
+
+
+{#    设置显示全部文章还是只显示关注用户的文章#}
+<div class="post-tabs">
+    <ul class="nav nav-tabs">
+        <li{% if not show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">所有文章</a></li>
+        {% if current_user.is_authenticated %}
+        <li{% if show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_followed') }}">我的关注</a></li>
+        {% endif %}
+    </ul>
+    {% include '_posts.html' %}
+</div>
+
+{% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.index') }}
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
+{% endblock %}
+
+

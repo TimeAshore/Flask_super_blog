@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Edit - {{ current_user.username }}{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h3>Hi,  {% if current_user.username %}{{ current_user.username }}{% else %}Stranger{% endif %},请修改你的信息.</h3>
+    <!--   渲染flash消息在基模板   -->
+</div>
+{{ wtf.quick_form(form) }}
+{% endblock %}

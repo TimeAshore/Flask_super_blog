@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}告白{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        body,html{
+           heigth:100%
+        }
+        body{
+            background: url("../static/8.jpg") center center no-repeat;
+            background-size: cover;
+            background-attachment:fixed;   /*固定背景图*/
+        }
+{#        #qqqq,#qqqq2{                      #}
+{#        为flask_wtf表单设置自定义的CSS样式   #}
+{#            width:300px;#}
+{#            border: dotted green 3px;#}
+{#        }#}
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    {{ wtf.quick_form(form) }}
+    <p></p>
+{#    <form method="post">#}
+{#    可以使用Bootstrap预先定义好的CSS样式渲染flask_wtf表单，
+也可以自定义表单CSS，在括号里传入Id或Class，在{% block head %}用CSS选择器选中，设置自己的CSS既可以了。#}
+{#        {{ form.hidden_tag() }}#}
+{#        {{ form.confession(id='qqqq2') }}#}
+{#        {{ form.submit(id='qqqq') }}#}
+{#    </form>#}
+
+
+    <br>
+    <form action="/search_confession" method="post">
+        <input type="text" name="search" style="margin-left: 916px;"/>
+        <input type="submit" value="查找">
+    </form>
+    <p></p>
+    <p style="color: #648f91">注：需删除告白的同学请联系管理员，会尽快处理</p>
+
+
+    <div class="post-tabs">
+        {% include '_confess.html' %}
+    </div>
+
+
+
+    {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination,'.confession') }}
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
+{% endblock %}
+

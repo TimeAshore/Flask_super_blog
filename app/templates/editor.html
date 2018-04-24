@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{#     文章编辑器TinyMCE                  #}
+{% block title %}写文章{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='tinymce/tinymce.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tinymce_setup.js') }}"></script>
+{% endblock %}
+
+{% block page_content %}
+    <form  method="post" action="" style="position: relative">
+         <input class="editor" name="content" id="content"><br>
+         <button style="position: absolute;left:540px;" class="btn btn-success" type="submit">提交</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,100 @@
+{#管理用户界面#}
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}管理用户{% endblock %}
+
+{#本来使用AJAX-GET-发请求从后台获取搜索结果，但是页面渲染上来不美观，所以改为了用form-post-render_template#}
+{#{% block head %}#}
+{#    {{ super() }}#}
+{#    <script type="text/javascript">#}
+{#        function search()#}
+{#        {#}
+{#             var xmlhttp,content;#}
+{#             if (window.XMLHttpRequest)#}
+{#             {#}
+{#                 xmlhttp=new XMLHttpRequest();#}
+{#             }#}
+{#             else#}
+{#             {#}
+{#                 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");#}
+{#             }#}
+{#             xmlhttp.onreadystatechange=function()#}
+{#             {#}
+{#                 if(xmlhttp.readyState==4 && xmlhttp.status==200)#}
+{#                 {#}
+{#                    document.getElementById("contentt").innerHTML=xmlhttp.responseText;#}
+{#                 }#}
+{#             }#}
+{#             content = document.getElementById("search_content").value;#}
+{#             xmlhttp.open("GET","search?search_content="+content,true);#}
+{#             xmlhttp.send();#}
+{#        }#}
+{#    </script>#}
+{##}
+{#{% endblock %}#}
+
+
+{% block page_content %}
+    <form action="/search" method="post">
+        <input type="text" name="search"/>
+        <input style="border: solid pink 2px" type="submit" value="搜索">
+    </form>
+    <table class="table table-hover followers">
+        <thead>
+            <tr>
+                <th>用户名</th>
+                <th>email</th>
+                <th>手机号</th>
+                <th>文章</th>
+                <th>粉丝</th>
+                <th>关注</th>
+                <th>注册时间</th>
+                <th>状态</th>
+            </tr>
+        </thead>
+        {% for user in users %}
+            {#这是显示关注的用户，确保不显示自己#}
+            {% if user.email != current_user.email %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('.user', username = user.username) }}">
+                            <img class="img-rounded" src="{{ user.gravatar(size=32) }}">
+                            {{ user.username }}
+                        </a>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.posts.count() }}</td>
+                    <td>{{ user.followers.count() - 1 }}</td>
+                    <td>{{ user.followed.count() - 1 }}</td>
+                    <td>{{ moment(user.member_since).format('LLL') }}</td>
+                    {% if  user.confirmed  %}
+                        <td>激活</td>
+                    {% else %}
+                        <td>未激活</td>
+                    {% endif %}
+                    <td>
+                        <div class="post-footer">
+                            <a href="{{ url_for('main.activation_user',id=user.id) }}">
+                                <span class="label label-info">激活</span>
+                            </a>
+                            <a href="{{ url_for('main.freeze_user',id=user.id) }}">
+                                <span class="label label-default">冻结</span>
+                            </a>
+                            <a href="{{ url_for('main.delete_user',id=user.id) }}">
+                                <span class="label label-danger">删除</span>
+                            </a>
+
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+{#    这个地方有问题：#}
+{#        翻页功能不可用，config.py已设置每页2条。#}
+{#<div class="pagination">#}
+{#    {{ macros.pagination_widget(pagination, endpoint, username = users.username) }}#}
+{#</div>#}
+{% endblock %}

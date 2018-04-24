@@ -1,0 +1,127 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Flasky{% endblock %}
+
+{% block head %}
+{{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style.css') }}">
+{% endblock %}
+
+
+{% block navbar %}
+<div style="background-color: #c7974b;width: auto;text-align: center;border: 1px dashed #f37041;" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a style="color: white;" class="navbar-brand" href="{{ url_for('main.index') }}">首页</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                {% if current_user.is_administrator() %}
+                    <li><a style="color: #2fc7f3" href="{{ url_for('main.management_users') }}">管理用户</a></li>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                    <li><a style="color: #2fc7f3" href="{{ url_for('main.homepage_2') }}">文件传输</a></li>
+                    <li><a style="color: #2fc7f3" href="{{ url_for('main.user', username=current_user.username) }}">个人资料</a></li>
+                {% endif %}
+{#<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=298 height=52 src="//music.163.com/outchain/player?type=2&id=516657051&auto=1&height=32"></iframe> #}
+                <li><a style="color: #2fc7f3" href="{{ url_for('main.confession') }}">告白墙</a></li>
+                <li><a style="color: #2fc7f3" href="{{ url_for('main.make') }}">写文章</a></li>
+                <li><a style="color: #2fc7f3" href="{{ url_for('main.translate') }}">在线翻译助手</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_administrator() %}
+                        <li><a style="color: #ff162c">身份：管理员</a></li>
+                    {% else %}
+                        <li><a style="color: #2fc7f3">Hello,{{ current_user.username }}</a></li>
+                    {% endif %}
+                    <li class="dropdown" onmouseover="ShowSub('drop_down_menu')" onmouseout="HideSub('drop_down_menu')" >
+{#                            js检测鼠标位置，设置自动下拉菜单#}
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="{{ current_user.gravatar(size=20) }}"><span style="color: #2fc7f3" >菜单</span> <b class="caret"></b>
+                            </a>
+                            <ul id="drop_down_menu" class="dropdown-menu">
+                                <li><a style="color: #2fc7f3" href="{{ url_for('auth.change_password') }}">修改密码</a></li>
+    {#                            <li><a href="{{ url_for('auth.change_email_request') }}">Change eamil</a></li>#}
+                                <li><a style="color: #2fc7f3" href="{{ url_for('auth.logout') }}">退出</a> </li>
+                            </ul>
+                        </li>
+                    <li class="dropdown" onmouseover="ShowSub('drop_down_color')" onmouseout="HideSub('drop_down_color')">
+{#                    新增换肤,js在下面{% scripts %}      #}
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                         <span style="color: #2fc7f3">换肤</span><b class="caret"></b>
+                                </a>
+                            <ul id="drop_down_color" class="dropdown-menu">
+                                <li><a onclick="ChangeColor('#92ac92')">淡绿</a> </li>
+                                <li><a onclick="ChangeColor('#eeaf7c')">橙</a> </li>
+                                <li><a onclick="ChangeColor('#aec377')">绿</a> </li>
+                            </ul>
+                    </li>
+
+                {% else %}
+                    <li><a style="color: #2fc7f3" href="{{ url_for('auth.login') }}">亲，请登陆</a> </li>
+                    <li><a style="color: #2fc7f3" href="{{ url_for('auth.register') }}">注册</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+    <hr>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+{#    确认删除框  #}
+        function confirmed() {
+            var r = confirm("确认删除？");
+            if(r == true){
+                    return true;
+            }
+            else{
+                    return false;
+            }
+        }
+    </script>
+     <script language="JavaScript">
+{#         window.onload = function () {#}
+{#             ChangeColor(col);#}
+{#         };#}
+        //只能临时换背景颜色，怎么全站换色？
+        function ChangeColor(color) {
+            window.document.body.style.backgroundColor = color;
+        }
+        function ShowSub(id) {
+            //显示
+            var subMenu = document.getElementById(id);
+            subMenu.style.display = "block";
+        }
+        function HideSub(id) {
+            //隐藏
+            var subMenu = document.getElementById(id);
+            subMenu.style.display = "none";
+        }
+    </script>
+    {{ super() }}
+    {{ moment.include_moment() }}
+    {{ moment.lang('zh-cn') }}
+{% endblock %}

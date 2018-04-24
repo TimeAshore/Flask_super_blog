@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}告白{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        body,html{
+           heigth:100%
+        }
+        body{
+            background: url("../static/8.jpg") center center no-repeat;
+            background-size: cover;
+            background-attachment:fixed;   /*固定背景图*/
+        }
+    </style>
+{% endblock %}
+{% block page_content %}
+    {{ wtf.quick_form(form) }}
+    <p></p>
+    <form action="/search_confession" method="post">
+        <input type="text" name="search" style="margin-left: 916px;"/>
+        <input type="submit" value="查找">
+    </form>
+    <p></p>
+    <p style="color: #648f91">注：需删除告白的同学请联系管理员，会尽快处理</p>
+
+
+    <div class="post-tabs">
+        {% include '_confess.html' %}
+    </div>
+
+
+
+    {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination,'.confession') }}
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
+{% endblock %}
+

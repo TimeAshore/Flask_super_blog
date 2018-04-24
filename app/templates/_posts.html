@@ -1,0 +1,54 @@
+<ul class="posts">
+{% if posts|length == 0 %}
+    <h4>没有发布的文章。</h4>
+    <a class="btn btn-warning" href="{{ url_for('main.make') }}">点击发布</a>
+{% else %}
+    {% for post in posts %}
+{#        设置透明样式#}
+        <li style="filter:alpha(Opacity=80); opacity: 0.8;" class="post">
+            <div class="post-thumbnail">
+                <a href="{{ url_for('.user', username=post.author.username) }}">
+                    <img class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=40) }}">
+                </a>
+            </div>
+            <div class="post-content">
+                <div class="post-date">{{ moment(post.timestamp).format('LLL') }}</div>
+
+                <div class="post-author"><a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
+                    <div style="color: black" class="post-body">
+                    {% if post.body_html %}
+                        {{ post.body_html.split('。')[0] | safe }}
+{#                        {{ post.body_html.split('。')[1] | safe }}...#}
+                    {% else %}
+                        {{ post.body }}
+                    {% endif %}
+                </div>
+            <p></p>
+            <div class="post-footer">
+                <a  href="{{ url_for('.post',id=post.id) }}">
+                    <span class="label label-info">链接</span>
+                </a>
+                <a href="{{ url_for('.post', id=post.id) }}#最新评论">
+                        <span class="label label-primary">{{ post.comments.count() }} 评论</span>
+                </a>
+                {% if current_user == post.author %}
+                    <a href="{{ url_for('.edit',id=post.id) }}">
+                        <span class="label label-warning">编辑</span>
+                    </a>
+                    <a href="{{ url_for('.delete',id=post.id) }}" onclick="return confirmed()">   <!-- 确认删除，返回flase不执行，confirmed()函数在base.html里写着，自己写的，不是js自带的 -->
+                        <span class="label label-danger">删除</span>
+                    </a>
+                {% elif current_user.is_administrator() %}
+                    <a href="{{ url_for('.edit',id=post.id) }}">
+                        <span class="label label-warning">编辑【管理员】</span>
+                    </a>
+                    <a href="{{ url_for('.delete',id=post.id) }}" onclick="return confirmed()">   <!-- 确认删除，返回flase不执行，confirmed()函数在base.html里写着，自己写的，不是js自带的 -->
+                        <span class="label label-danger" >删除【管理员】</span>
+                    </a>
+                {% endif %}
+            </div>
+            </div>
+        </li>
+    {% endfor %}
+{% endif %}
+</ul>

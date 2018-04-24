@@ -1,0 +1,42 @@
+<ul class="confessions">
+    {% if confessions|length == 0 %}
+        <h4 style="color: #648f91">没有发布的告白。</h4>
+    {% else %}
+
+        {% for confess in confessions %}
+            <li class="confess">
+                <div class="confess-thumbnail">
+                    <a href="{{ url_for('.user', username=confess.author.username) }}">
+                        <img class="img-rounded profile-thumbnail" src="{{ confess.author.gravatar(size=40) }}">
+                    </a>
+                </div>
+
+                <div class="confess-content">
+                    <div style="color: #648f91" class="confess-date">{{ moment(confess.time).fromNow() }}</div>
+                    <div class="confess-author"><a href="{{ url_for('.user',username=confess.author.username) }}">{{ confess.author.username }}</a></div>
+
+                    <div style="color: #fffa62">
+                        {% if confess.content %}
+                            {{ confess.content | safe }}
+                        {% else %}
+                            {{ confess.content }}
+                        {% endif %}
+                    </div>
+                    <div class="post-footer">
+{#                    仅限管理员可以删除告白墙内容。 如果要改发布告白的作者也可以删除，只需加上current_user == confess.author #}
+                        {% if current_user.is_administrator()%}
+                            <a href="{{ url_for('.confession_delete',id=confess.id) }}" onclick="return confirmed()">  <!-- 确认删除，返回flase不执行，confirmed()函数在base.html里写着，自己写的，不是js自带的 -->
+                                <span class="label label-danger">删除</span>
+                            </a>
+                        {% endif %}
+
+                    </div>
+
+
+                </div>
+
+
+            </li>
+        {% endfor %}
+    {% endif %}
+</ul>

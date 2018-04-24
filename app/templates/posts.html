@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}文章详情页{% endblock %}
+
+
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+{#    设置背景颜色为温色#}
+        body{
+            background-color: #f5f5d5;
+        }
+    </style>
+{% endblock %}
+
+
+{% block page_content %}
+<ul class="posts">
+    {% for post in posts %}
+    <li class="post">
+        <div class="post-thumbnail">
+            <a href="{{ url_for('main.user', username=post.author.username) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=40) }}">
+            </a>
+        </div>
+        <p></p>
+        <div class="post-content">
+            <div class="post-date">{{ moment(post.timestamp).format('LLL') }}</div>
+            <div class="post-author"><a href="{{ url_for('main.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
+                        <div id="post-body" class="post-body">
+                        </div>
+        </div>
+    </li>
+        <script type="text/javascript">
+            window.onload = function () {
+                //触发文章内容ajax
+                  loading_article();
+            };
+            function loading_article() {
+                //ajax请求文章内容
+                var article = new XMLHttpRequest();
+                article.open("GET", "/auth/article_data?pid=" + {{ post.id }}, true);
+                article.send();
+                article.onreadystatechange = function () {
+                    if (article.readyState == 4 && article.status == 200) {
+                        var articles = article.responseText;
+                        articles = JSON.parse(articles);
+                            {% if post.body_html %}
+                                {# alert(articles['post_html']); #}
+{#                                判断文章内容有没有图片   #}
+                                if(articles['post_html'].indexOf('static/article_img') >= 0){
+{#                                    src换成绝对地址   #}
+                                    articles['post_html'] = articles['post_html'].replace(/\.\.\/static\/article_img/g, "http://127.0.0.1:5000/static/article_img")
+                                }
+                                document.getElementById("post-body").innerHTML = articles['post_html']
+                            {% else %}
+                                document.getElementById("post-body").innerHTML = articles['post']
+                            {% endif %}
+                    }
+                }
+            }
+        </script>
+    {% endfor %}
+</ul>
+{#    评论#}
+    {% for post in posts %}
+            <input type="hidden" id="pid", value={{ post.id }}>
+            <h4 id="最新评论">最新评论</h4>
+            {#    渲染评论框#}
+            {% if current_user.can(Permission.COMMENT) %}
+                <div class="comment-form">
+                    {{ wtf.quick_form(form) }}
+                </div>
+            {% endif %}
+        {% include '_comments.html' %}
+        <script language="JavaScript">
+            var run_ajax = true;
+            function loadXMLDoc() {
+{#                使用ajax加载评论，run_ajax保证同一个页面只加载一次   #}
+                if(run_ajax){
+                    run_ajax = false;
+                var pid = document.getElementById("pid").value;
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", "/auth/commits?pid=" + pid, true);
+                xmlhttp.send();
+                xmlhttp.onreadystatechange = function () {
+                    //当 readyState 等于 4 且状态为 200 时，表示响应已就绪。
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        var commits = xmlhttp.responseText;   //接收服务器发回的状态码  0表示发送失败，1反之。
+                        commits = JSON.parse(commits);
+                        var s = '',s2 = '';
+                        for(var i=0;i<commits.length;i++){
+                             s2 += '<li class="comment">\
+                                    <div class="comment-thumbnail">\
+                                        <a href="http://127.0.0.1:5000/main/user/'+ commits[i].username +'">\
+                                            <img class="img-rounded profile-thumbnail" src="'+ commits[i].gravatar +'">\
+                                        </a>\
+                                    </div>\
+                                    <div class="comment-content">\
+                                        <div style="font-size:12px;" class="comment-date">'+ commits[i].timestamp +'</div>\
+                                        <div class="comment-author"><a href="http://127.0.0.1:5000/main/user/'+ commits[i].username +'">'+ commits[i].username +'</a></div>\
+                                        <div class="comment-body">\
+                                            {% if '+commits[i].body_html+' %}\
+                                                '+commits[i].body_html+'\
+                                            {% else %}\
+                                                '+commits[i].body+'\
+                                            {% endif %}\
+                                        </div>\
+                                        <div id="comment-footer" class="comment-footer">\
+                                        {% if current_user ==  post.author  or current_user.can(Permission.ADMINISTER) %}\
+                                            <a href="http://127.0.0.1:5000/main/comment_delete?id='+ commits[i].id +'&pid='+ {{ post.id }} +'">\
+{#     哎！url_for反转不行，只好拼接地址了  <a href="{{ url_for(".comment_delete",id=commit[i].id, pid=post.id) }}">\ #}\
+                                                <span class="label label-danger" onclick="return confirmed()">删除</span>\
+                                            </a>\
+                                        {% endif %}\
+                                        </div>\
+                                    </div>\
+                                </li>';
+                            document.getElementById("ldy").innerHTML = s2;
+                        }
+                    }
+                }
+             }
+            }
+            function scroll(){
+                if(window.pageXOffset != null){
+                    return {
+                        left:window.pageXOffset,
+                        top:window.pageYOffset
+                    }
+                }
+                else if(document.compatMode == "CSS1Compat"){
+                    return {
+                        left:document.documentElement.scrollLeft,
+                        top:document.documentElement.scrollTop
+                    }
+                }
+                return{
+                    left:document.body.scrollLeft,
+                    top:document.body.scrollTop
+                }
+            }
+
+{#            1、文章内容短，直接加载评论  #}
+                var ul = document.querySelector(".posts");
+                var ulheight = ul.offsetHeight;
+                console.log(ulheight);
+                if(ulheight<=1000){
+                    loadXMLDoc()
+                }
+{#            2、滚动条到页面底部触发ajax  #}
+            window.onscroll = function () {
+                if (scroll().top >= 1000){
+                    loadXMLDoc();
+                }
+                console.log(scroll().top)
+            }
+        </script>
+        {% if pagination %}
+            <div class="pagination">
+                {{ macros.pagination_widget(pagination, '.post', fragment='#comments', id=posts[0].id) }}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+
+{% endblock %}

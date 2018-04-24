@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}在线翻译{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        body{
+            background: url("../static/11.jpg")no-repeat;
+            background-size: cover;
+        }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    <script type="text/javascript">
+        function showHint() {
+            content = document.getElementById("input_content").value;
+            if(content==''){
+                document.getElementById("answer").innerText = ''
+                return 0;
+            }
+            var article = new XMLHttpRequest();
+                article.open("POST", "{{ url_for('main.translate') }}", true);
+{#              注意：ajax发post请求需要设置请求头                                                                 #}
+                article.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                article.send("input_content="+content);
+                article.onreadystatechange = function () {
+                    if (article.readyState == 4 && article.status == 200) {
+                        var answer = article.responseText;
+                        answer = JSON.parse(answer);
+                        document.getElementById("answer").innerText = answer["answer"]
+                    }
+                }
+        }
+        var timer = setTimeout("",100000);
+        function f() {
+            //清空计时器
+            clearTimeout(timer)
+        }
+        function ff() {
+            //开始计时器，0.8s不做反应就提交内容
+            timer = setTimeout(showHint, 800)
+        }
+    </script>
+    <div id="div" style="position:relative;">
+        <p style="color: #f31417;position:absolute;top:60px;left:0px;">实时翻译</p>
+        <textarea id="input_content" style="border: none;background-color: rgba(255,255,255,0.5);position:absolute;top:100px;left:0;" onkeydown="f()" onkeyup="ff()" rows="10" cols="50" placeholder="请输入你要翻译的文字"></textarea>
+        <br>
+
+        <p style="color:#0b18ff;position:absolute;top:60px;right: 310px;">翻译结果 <br></p>
+        <textarea style="background-color: rgba(255,255,255,0.5);border: none;position:absolute;top:100px;right:0;" id="answer" rows="10" cols="50" placeholder="示例结果"></textarea>
+    </div>
+{#    <div class="page-header">#}
+{#    </div>#}
+
+{#    <div>#}
+{#        {{ wtf.quick_form(form) }}#}
+{#    </div>#}
+{#                                                                           #}
+{#    <p></p>#}
+{#    注释：可以改成用ajax加载翻译结果#}
+{#    <div>#}
+{#    在这里不会把翻译后的内容插入在渲染过后的form框中#}
+{#    {{ wtf.quick_form(answer) }}#}
+{#        翻译结果：#}
+{#        {{ answer }}#}
+{##}
+{#    </div>#}
+{% endblock %}
